@@ -6,6 +6,7 @@
 ## Features
 
 - Interactive date range selection
+- General information of each country 
 - Multiple time frame views (Daily, Weekly, Monthly, Quarterly)
 - Key metrics:
   - Total Subscribers
