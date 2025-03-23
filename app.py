@@ -2,13 +2,9 @@ import streamlit as st
 import sqlite3
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import datetime
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from scipy.integrate import odeint
-
 
 
 # load data
@@ -63,7 +59,6 @@ selected_uscounty = st.sidebar.selectbox("Select a US County", sorted_counties, 
 def get_global_data(df):
     df["Date"] = pd.to_datetime(df["Date"])
 
-    # Group data by Date and sum the relevant columns
     global_data = df.groupby('Date', as_index=False).agg({
         'Confirmed': 'sum',
         'Deaths': 'sum',
@@ -72,7 +67,6 @@ def get_global_data(df):
         'Population': 'sum' 
     })
 
-    # Calculate new cases, new deaths, and new recoveries
     global_data['New Cases'] = global_data['Confirmed'].diff().fillna(0)
     global_data['New Deaths'] = global_data['Deaths'].diff().fillna(0)
     global_data['New Recovered'] = global_data['Recovered'].diff().fillna(0)
@@ -82,13 +76,11 @@ def get_global_data(df):
 def plot_new_cases_by_country(df, country, start_date=None, end_date=None):
     df = df[df['Country.Region'] == country].copy()
 
-    # Filter data based on the start and end date 
     if start_date:
         df = df[df['Date'] >= pd.to_datetime(start_date)]
     if end_date:
         df = df[df['Date'] <= pd.to_datetime(end_date)]
 
-    # Create subplots 
     fig = make_subplots(
         rows=3, cols=1, shared_xaxes=True, 
         subplot_titles=('New Cases', 'New Deaths', 'New Recoveries'),
@@ -131,23 +123,19 @@ def plot_new_cases_by_country(df, country, start_date=None, end_date=None):
 def plot_new_cases_world(df, start_date=None, end_date=None):
     world_data = df.copy()
 
-    # Convert Date column to datetime
     world_data['Date'] = pd.to_datetime(world_data['Date'])
 
-    # Filter data based on the start and end date
     if start_date:
         world_data = world_data[world_data['Date'] >= pd.to_datetime(start_date)]
     if end_date:
         world_data = world_data[world_data['Date'] <= pd.to_datetime(end_date)]
 
-    # Create subplots
     fig = make_subplots(
         rows=3, cols=1, shared_xaxes=True, 
         subplot_titles=('New Cases', 'New Deaths', 'New Recoveries'),
         vertical_spacing=0.1
     )
 
-    # Add traces for each category
     fig.add_trace(go.Scatter(x=world_data['Date'], 
                              y=world_data['New Cases'], 
                              mode='lines', 
@@ -166,7 +154,6 @@ def plot_new_cases_world(df, start_date=None, end_date=None):
                              name='New Recoveries'),
                   row=3, col=1)
 
-    # Update layout
     fig.update_layout(
         title='New Cases, Deaths, and Recoveries Over Time',
         xaxis_title='Date',
@@ -184,13 +171,11 @@ def plot_new_cases_world(df, start_date=None, end_date=None):
 def plot_total_by_country_per_1M(df, country, start_date=None, end_date=None):
     df = country_daywise_df[country_daywise_df['Country.Region'] == country]
 
-    # Filter data based on the start and end date 
     if start_date:
         df = df[df['Date'] >= pd.to_datetime(start_date)]
     if end_date:
         df = df[df['Date'] <= pd.to_datetime(end_date)]
 
-    # Create subplots with separate y-axes
     fig = make_subplots(
         rows=3, cols=1, shared_xaxes=True, 
         subplot_titles=('Active Cases per 1M Population', 
@@ -199,28 +184,24 @@ def plot_total_by_country_per_1M(df, country, start_date=None, end_date=None):
                 vertical_spacing=0.1
     )
     
-    # Plot Active Cases per 1M Population
     fig.add_trace(go.Scatter(x=df['Date'], 
                              y=df['Active_per_1Mpopulation'], 
                              mode='lines', 
                              name='Active Cases per 1M'),
                   row=1, col=1)
 
-    # Plot Deaths per 1M Population
     fig.add_trace(go.Scatter(x=df['Date'], 
                              y=df['Deaths_per_1Mpopulation'], 
                              mode='lines', 
                              name='Deaths per 1M'),
                   row=2, col=1)
 
-    # Plot Recovered Cases per 1M Population
     fig.add_trace(go.Scatter(x=df['Date'], 
                              y=df['Recovered_per_1Mpopulation'], 
                              mode='lines', 
                              name='Recovered Cases per 1M'),
                   row=3, col=1)
 
-    # Update layout with separate y-axis labels for each plot
     fig.update_layout(
         title=f'Total Active, Deaths, and Recoveries per 1M Population for {country}',
         xaxis_title='Date',
@@ -229,7 +210,6 @@ def plot_total_by_country_per_1M(df, country, start_date=None, end_date=None):
         xaxis_rangeslider_visible=False,
     )
 
-    # Update each subplot's y-axis label
     fig.update_yaxes(title_text="Active Cases per 1M", row=1, col=1)
     fig.update_yaxes(title_text="Deaths per 1M", row=2, col=1)
     fig.update_yaxes(title_text="Recovered per 1M", row=3, col=1)
@@ -276,7 +256,6 @@ def plot_compare_country(df):
     with col2: 
         st.plotly_chart(fig_deaths, use_container_width=False) 
 
-
 def plot_map_active(df, continent_select):
 
     df['ActivePerPopulation'] = df['Active'] / df['Population']
@@ -292,6 +271,7 @@ def plot_map_active(df, continent_select):
                         title=f'Active COVID-19 Cases per Population in {continent_select} Over Time')
 
     st.plotly_chart(fig, use_container_width=True)
+
 def plot_death_rates_continent(df):
     continent_df = df.groupby(['Date','Continent'])[['New Deaths','Active']].sum()
     continent_df['Mortality Rate'] = continent_df['New Deaths'] / continent_df['Active']
@@ -311,7 +291,7 @@ def plot_death_rates_continent(df):
     st.plotly_chart(fig, use_container_width=True)
 
 def calculate_mortality_rate(df):
-    df['Mortality Rate'] = df['New Deaths'] / df['Active']
+    df['Mu'] = df['New Deaths'] / df['Active']
     return df
 
 def estimate_parameters(df, gamma):
@@ -326,7 +306,7 @@ def estimate_parameters(df, gamma):
         delta_I = df['Active'].iloc[t] - df['Active'].iloc[t-1]
         delta_R = df['Recovered'].iloc[t] - df['Recovered'].iloc[t-1]
         alpha_t = ((gamma * I) - delta_R) / R if R != 0 else np.nan
-        beta_t = (N / (S * I)) * (delta_I + (df['Mortality Rate'].iloc[t] * I) + (gamma * I))
+        beta_t = (N / (S * I)) * (delta_I + (df['Mu'].iloc[t] * I) + (gamma * I))
 
         alpha.append(alpha_t)
         beta.append(beta_t)
@@ -340,96 +320,86 @@ def compute_R0(df, gamma):
     df['R0'] = df['Beta'] / gamma
     return df
 
-def plot_r0_trajectory(df):
+def plot_parameters(df):
     df = calculate_mortality_rate(df)
     gamma = 1/4.5
     df = estimate_parameters(df, gamma)
     df = compute_R0(df, gamma)
 
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=df['Date'], 
-        y=df['R0'], 
-        mode='lines',
-        name='R0 over time',
-        line=dict(color='blue')
-    ))
+    fig = make_subplots(rows=2, cols=2, subplot_titles=["Alpha", "Beta", "Mu", "R0"])
 
-    # Update layout
+    parameters = ["Alpha", "Beta", "Mu", "R0"]
+    positions = [(1, 1), (1, 2), (2, 1), (2, 2)]
+
+    for param, (row, col) in zip(parameters, positions):
+        fig.add_trace(go.Scatter(x=df["Date"], y=df[param], mode="lines", name=param), row=row, col=col)
+
     fig.update_layout(
-        title=f'R0 (Basic Reproduction Number) Trajectory Over Time',
-        xaxis_title='Date',
-        yaxis_title='R0 Value',
+        title="Estimated Parameters Over Time",
         template="plotly_white",
-        height=500
+        showlegend=False,  
+        height=600, width=800
     )
 
-    # Display in Streamlit
+    fig.update_xaxes(title_text="Date")
+    fig.update_yaxes(title_text="Parameter Value")
+
     st.plotly_chart(fig, use_container_width=True)
-def solve_sir_model(df, gamma):
-    df = estimate_parameters(df, gamma)
+
+    alpha = df["Alpha"].mean() if df["Alpha"].mean() < 2  else 1.5
+
+    return alpha, df['Beta'].mean(), df['Mu'].mean()
+
+def sir_model(df, beta, gamma, alpha, mu):
+    N = df['Population'].values[0]  
+    I0 = df['Active'].values[0]  
+    R0 = df['Recovered'].values[0]  
+    D0 = df['Deaths'].values[0]  
+    S0 = N - I0 - R0 - D0  
+
+    S, I, R, D = [S0], [I0], [R0], [D0]
+
+    for t in range(1, len(df)):
+        dS = alpha * R[-1] - beta * S[-1] * I[-1] / N
+        dI = beta * S[-1] * I[-1] / N - mu * I[-1] - gamma * I[-1]
+        dR = gamma * I[-1] - alpha * R[-1]
+        dD = mu * I[-1]
+        
+        S.append(S[-1] + dS)
+        I.append(I[-1] + dI)
+        R.append(R[-1] + dR)
+        D.append(D[-1] + dD)
     
-    N = df["Population"].values[0]
-    I0 = df["Active"].iloc[0]
-    R0 = df["Recovered"].iloc[0]
-    D0 = df["Deaths"].iloc[0]
-    S0 = N - (I0 + R0 + D0)
+    return S, I, R, D
 
-    days = len(df)
-    t = np.linspace(0, days-1, days)
-
-    beta_mean = df["Beta"].mean()
-    alpha_mean = df["Alpha"].mean()
-    mu_mean = df["Mortality Rate"].mean()
-
-    # Solve differential equations
-    solution = odeint(sir_model, [S0, I0, R0, D0], t, args=(alpha_mean, beta_mean, gamma, mu_mean, N))
-    S, I, R, D = solution.T
-
-    return df["Date"], I, df["Active"]
-
-def plot_parameters(df):
-    fig = px.line(df, x="Date", y=["Alpha", "Beta"],
-                  title="Estimated Alpha and Beta Over Time",
-                  labels={"value": "Parameter Value", "Date": "Date"},
-                  template="plotly_white")
-    st.plotly_chart(fig, use_container_width=True)
-
-def plot_sir_vs_actual(df, gamma):
-    dates, predicted_infected, actual_infected = solve_sir_model(df, gamma)
-
+def plot_sir_model(df, S, I, R, D):
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=dates, y=predicted_infected, mode='lines', name="Predicted Infections", line=dict(color='red')))
-    fig.add_trace(go.Scatter(x=dates, y=actual_infected, mode='lines', name="Actual Infections", line=dict(color='blue')))
 
-    fig.update_layout(title="SIR Model vs Actual Cases",
-                      xaxis_title="Date",
-                      yaxis_title="Number of Cases",
-                      template="plotly_white")
+    fig.add_trace(go.Scatter(x=df["Date"], y=S, mode="lines", name="Susceptible", line=dict(color="blue")))
+    fig.add_trace(go.Scatter(x=df["Date"], y=I, mode="lines", name="Infected", line=dict(color="red")))
+    fig.add_trace(go.Scatter(x=df["Date"], y=R, mode="lines", name="Recovered", line=dict(color="green")))
+    fig.add_trace(go.Scatter(x=df["Date"], y=D, mode="lines", name="Deceased", line=dict(color="black")))
+
+    fig.update_layout(
+        title="SIR Model Over Time",
+        xaxis_title="Date",
+        yaxis_title="Population",
+        template="plotly_white",
+        legend_title="Categories"
+    )
 
     st.plotly_chart(fig, use_container_width=True)
-
-def sir_model(y, t, alpha, beta, gamma, mu, N):
-    S, I, R, D = y
-    dSdt = alpha * R - beta * S * I / N
-    dIdt = beta * S * I / N - gamma * I - mu * I
-    dRdt = gamma * I - alpha * R
-    dDdt = mu * I
-    return [dSdt, dIdt, dRdt, dDdt]
-
 
 def plot_new_cases_by_county(county_df, start_date=None, end_date=None):
     df = county_df.copy()
-    df['New Deaths'] = df['Deaths'].diff().fillna(0)  # Calculate new cases
-    df['New Cases'] = df['Confirmed'].diff().fillna(0)  # Calculate new cases
+    df['New Deaths'] = df['Deaths'].diff().fillna(0) 
+    df['New Cases'] = df['Confirmed'].diff().fillna(0) 
 
-    # Filter data based on the start and end date 
     if start_date:
         df = df[df['Date'] >= pd.to_datetime(start_date)]
     if end_date:
         df = df[df['Date'] <= pd.to_datetime(end_date)]
 
-    # Create subplots 
     fig = make_subplots(
         rows=2, cols=1, shared_xaxes=True, 
         subplot_titles=('New Cases', 'New Deaths'),
@@ -448,7 +418,6 @@ def plot_new_cases_by_county(county_df, start_date=None, end_date=None):
                              name='New Deaths'),
                   row=2, col=1)
 
-    # Update layout
     fig.update_layout(
         title=f'New Cases, Deaths over Time',
         xaxis_title='Date',
@@ -489,7 +458,6 @@ def plot_compare_uscounty(df):
     
         st.plotly_chart(fig_cases, use_container_width=False)  
 
-    # Plot Top 5 Countries with Most Deaths
     fig_deaths = px.bar(top_5_deaths, 
                         x="Combined_Key", 
                         y="Deaths", 
@@ -551,9 +519,7 @@ with tab1:
     plot_compare_uscounty(usa_county_df)
 
 
-
 with tab2:
-
     filtered_df = country_daywise_df[country_daywise_df["Country.Region"] == selected_country]
 
     st.subheader(f"Statistics for {selected_country}")
@@ -565,7 +531,6 @@ with tab2:
     active_cases = int(filtered_df["Active"].iloc[-1])
     population = int(filtered_df["Population"].iloc[-1])
 
-    # Display metrics in columns
     col1, col2, col3, col4 = st.columns(4)
     with col1:
         st.metric("Confirmed Cases", f"{total_cases:,}")
@@ -594,58 +559,20 @@ with tab2:
         plot_total_by_country_per_1M(country_daywise_df, selected_country, start_date, end_date)
 
     st.subheader(f"SIR Model Summaries for {selected_country}")
-    # plot estimates mu, alpha, beta, r0
-    # plot SIR model 
+    parameters_mean = plot_parameters(filtered_df)
 
-    plot_r0_trajectory(filtered_df)
+    col1, col2, col3, col4 = st.columns(4)
 
-    # Sidebar inputs
-    st.sidebar.header("Model Parameters") # use mean of estimates
-    beta = st.sidebar.slider("Beta (Infection Rate)", 0.0, 1.0, 0.3, 0.001)
-    gamma = st.sidebar.slider("Gamma (Recovery Rate)", 0.0, 1.0, 0.1, 0.001)
-    alpha = st.sidebar.slider("Alpha (Loss of Immunity Rate)", 0.0, 2.0, 0.05, 0.01)
-    mu = st.sidebar.slider("Mu (Mortality Rate)", 0.0, 1.0, 0.01, 0.001)
+    with col1:
+        gamma = st.number_input("Gamma", value=1/14, step=0.005, help="Recovery rate of the infected population", format="%0.3f")
+    with col2:
+        beta = st.number_input("Beta", value=parameters_mean[1], step=0.005, help="Infection rate per person per day", format="%0.3f")
+    with col3:
+        alpha = st.number_input("Alpha", value=parameters_mean[0], step=0.01, help="Loss of immunity rate per person per day", format="%0.3f")
+    with col4:
+        mu = st.number_input("Mu", value=parameters_mean[2], step=0.005, help="Mortality rate per person per day", format="%0.3f")
 
-    def sir_model(S0, I0, R0, D0, beta, gamma, alpha, mu, days):
-        N = S0 + I0 + R0 + D0  # Total population
-        S, I, R, D = [S0], [I0], [R0], [D0]
-        
-        for t in range(1, days):
-            dS = alpha * R[-1] - beta * S[-1] * I[-1] / N
-            dI = beta * S[-1] * I[-1] / N - mu * I[-1] - gamma * I[-1]
-            dR = gamma * I[-1] - alpha * R[-1]
-            dD = mu * I[-1]
-            
-            S.append(S[-1] + dS)
-            I.append(I[-1] + dI)
-            R.append(R[-1] + dR)
-            D.append(D[-1] + dD)
-        
-        return S, I, R, D
-
-    # Compute SIR Model
-    days = 188
-    N = filtered_df['Population'].values[0]  # Population of the country
-    I0 = filtered_df['Active'].values[0]  # Initial Infected
-    R0 = filtered_df['Recovered'].values[0]  # Initial Recovered
-    D0 = filtered_df['Deaths'].values[0]  # Initial Deaths
-    S0 = N - I0 - R0 - D0  # Initial Susceptible population
-
-    S, I, R, D = sir_model(S0, I0, R0, D0, beta, gamma, alpha, mu, days)
-
-    df = pd.DataFrame({"Days": range(days), "Susceptible": S, "Infected": I, "Recovered": R, "Deceased": D})
-
-    # Plot results
-    fig, ax = plt.subplots(figsize=(10, 5))
-    # ax.plot(df["Days"], df["Susceptible"], label="Susceptible", color='blue')
-    ax.plot(df["Days"], df["Infected"], label="Infected", color='red')
-    ax.plot(df["Days"], filtered_df["Active"], label="Actual Infection", color='green')
-    # ax.plot(df["Days"], df["Recovered"], label="Recovered", color='green')
-    # ax.plot(df["Days"], df["Deceased"], label="Deceased", color='black')
-    ax.set_xlabel("Days")
-    ax.set_ylabel("Population")
-    ax.legend()
-    st.pyplot(fig)
+    plot_sir_model(filtered_df, *sir_model(filtered_df, beta, gamma, alpha, mu))
 
 
 with tab3:
@@ -667,5 +594,4 @@ with tab3:
     plot_new_cases_by_county(county_df, start_date, end_date)
 
 
-
-# # streamlit run streamlit_app.py
+# streamlit run streamlit_app.py
