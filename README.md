@@ -1,7 +1,6 @@
 # COVID-19 Data Dashboard
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://dashboard-kit.streamlit.app/)
-
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://kkcovid19dashboard.streamlit.app/)
 
 ## Overview
 
@@ -37,7 +36,7 @@ To run the dashboard locally, follow these steps:
 
 ## Requirements
 
-- Python 3.7+
+- Python 3.8+
 - Streamlit
 - Plotly
 - Pandas
