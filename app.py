@@ -375,10 +375,10 @@ def sir_model(df, beta, gamma, alpha, mu):
 def plot_sir_model(df, S, I, R, D):
     fig = go.Figure()
 
-    fig.add_trace(go.Scatter(x=df["Date"], y=S, mode="lines", name="Susceptible", line=dict(color="blue")))
-    fig.add_trace(go.Scatter(x=df["Date"], y=I, mode="lines", name="Infected", line=dict(color="red")))
-    fig.add_trace(go.Scatter(x=df["Date"], y=R, mode="lines", name="Recovered", line=dict(color="green")))
-    fig.add_trace(go.Scatter(x=df["Date"], y=D, mode="lines", name="Deceased", line=dict(color="black")))
+    fig.add_trace(go.Scatter(x=df["Date"], y=S, mode="lines", name="Susceptible"))
+    fig.add_trace(go.Scatter(x=df["Date"], y=I, mode="lines", name="Infected"))
+    fig.add_trace(go.Scatter(x=df["Date"], y=R, mode="lines", name="Recovered"))
+    fig.add_trace(go.Scatter(x=df["Date"], y=D, mode="lines", name="Deceased"))
 
     fig.update_layout(
         title="SIR Model Over Time",

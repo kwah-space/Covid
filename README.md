@@ -2,6 +2,7 @@
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://kkcovid19dashboard.streamlit.app/)
 
+
 ## Overview
 
 This repository contains a COVID-19 data dashboard built using Streamlit. The dashboard visualizes the spread and impact of COVID-19 from January 22nd to July 27th, 2020. It provides interactive graphs and insights into confirmed cases, deaths, and recoveries across different countries and regions.
@@ -9,17 +10,16 @@ This repository contains a COVID-19 data dashboard built using Streamlit. The da
 
 ## Features
 
-- Interactive date range selection
-- Comparative analysis across different continents, countries, and US counties
-- General information of each country and US county
-- SIR Model summaries of each country
-- Key metrics:
-  - Total Confirmed Cases
-  - Total Deaths
-  - Total Recoveries 
-  - Population
-- Option to input values for SIR model parameters
-
+- **Interactive Date Range Selection**  
+- **Comparative Analysis** across different continents, countries, and US counties  
+- **General Information** for each country and US county  
+- **SIR Model Summaries** for each country, including adjustable parameters  
+- **Key Metrics:**  
+  - Total Confirmed Cases  
+  - Total Deaths  
+  - Total Recoveries  
+  - Population  
+- **User Input for SIR Model Parameters** to customize projections  
 
 ## Installation
 To run the dashboard locally, follow these steps:
