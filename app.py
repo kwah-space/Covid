@@ -8,7 +8,7 @@ from plotly.subplots import make_subplots
 
 
 # load data
-conn = sqlite3.connect('covid_database.db')
+conn = sqlite3.connect('Data/covid_database.db')
 query = """
     SELECT *
     FROM usa_county_wise;
@@ -18,7 +18,7 @@ usa_county_df = pd.read_sql(query, conn)
 usa_county_df['Date'] = pd.to_datetime(usa_county_df['Date'])
 conn.close()
 
-country_daywise_df = pd.read_csv("final_country_daywise.csv")
+country_daywise_df = pd.read_csv("Data/final_country_daywise.csv")
 
 # Streamlit UI
 st.set_page_config(layout="wide")
